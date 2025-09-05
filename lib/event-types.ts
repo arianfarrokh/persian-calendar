@@ -8,7 +8,7 @@ export interface CalendarEvent {
   startTime?: string
   endTime?: string
   isAllDay: boolean
-  category?: "work" | "personal" | "holiday" | "reminder"
+  category?: "work" | "personal" | "holiday" | "reminder" | "health" | "other"
   color?: string
   persianDate: {
     year: number
