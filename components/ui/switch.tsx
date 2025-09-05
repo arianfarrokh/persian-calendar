@@ -1,31 +1,44 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import * as SwitchPrimitive from "@radix-ui/react-switch"
+import * as React from "react";
+import { Switch as MuiSwitch, SwitchProps } from "@mui/material";
+import { styled } from "@mui/material/styles";
 
-import { cn } from "@/lib/utils"
+const StyledSwitch = styled(MuiSwitch)(({ theme }) => ({
+  width: 32,  // معادل w-8
+  height: 18, // معادل h-[1.15rem]
+  padding: 0,
+  display: "flex",
+  "& .MuiSwitch-switchBase": {
+    padding: 1,
+    "&.Mui-checked": {
+      transform: "translateX(14px)", // data-[state=checked]:translate-x
+      color: theme.palette.common.white,
+      "& + .MuiSwitch-track": {
+        backgroundColor: theme.palette.primary.main,
+        opacity: 1,
+      },
+    },
+    "&.Mui-disabled": {
+      opacity: 0.5,
+    },
+  },
+  "& .MuiSwitch-thumb": {
+    backgroundColor: theme.palette.background.paper,
+    width: 16, // size-4
+    height: 16,
+    boxShadow: "0 0 0 0 transparent",
+  },
+  "& .MuiSwitch-track": {
+    borderRadius: 18 / 2,
+    backgroundColor: theme.palette.action.disabledBackground, // data-[state=unchecked]:bg-input
+    opacity: 1,
+    transition: theme.transitions.create(["background-color"], {
+      duration: 200,
+    }),
+  },
+}));
 
-function Switch({
-  className,
-  ...props
-}: React.ComponentProps<typeof SwitchPrimitive.Root>) {
-  return (
-    <SwitchPrimitive.Root
-      data-slot="switch"
-      className={cn(
-        "peer data-[state=checked]:bg-primary data-[state=unchecked]:bg-input focus-visible:border-ring focus-visible:ring-ring/50 dark:data-[state=unchecked]:bg-input/80 inline-flex h-[1.15rem] w-8 shrink-0 items-center rounded-full border border-transparent shadow-xs transition-all outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50",
-        className
-      )}
-      {...props}
-    >
-      <SwitchPrimitive.Thumb
-        data-slot="switch-thumb"
-        className={cn(
-          "bg-background dark:data-[state=unchecked]:bg-foreground dark:data-[state=checked]:bg-primary-foreground pointer-events-none block size-4 rounded-full ring-0 transition-transform data-[state=checked]:translate-x-[calc(100%-2px)] data-[state=unchecked]:translate-x-0"
-        )}
-      />
-    </SwitchPrimitive.Root>
-  )
+export function Switch(props: SwitchProps) {
+  return <StyledSwitch {...props} />;
 }
-
-export { Switch }

@@ -1,222 +1,167 @@
-"use client"
+"use client";
 
-import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
-import { jsDateToPersian, formatPersianNumber, PERSIAN_WEEKDAYS } from "@/lib/solar-hijri"
-import type { CalendarEvent } from "@/lib/event-types"
-import { Trash2, Edit } from "lucide-react"
+import { useState } from "react";
+import { Card, Button, Typography, Grid, Stack, Box } from "@mui/material";
+import { Trash2, Edit } from "lucide-react";
+import { jsDateToPersian, formatPersianNumber, PERSIAN_WEEKDAYS } from "@/lib/solar-hijri";
+import type { CalendarEvent } from "@/lib/event-types";
 
 interface WeekViewProps {
-  selectedDate: Date
-  events: CalendarEvent[]
-  onCreateEvent: (date: Date, time?: string) => void
-  onEditEvent: (event: CalendarEvent) => void
-  onDeleteEvent: (eventId: string) => void
+  selectedDate: Date;
+  events: CalendarEvent[];
+  onCreateEvent: (date: Date, time?: string) => void;
+  onEditEvent: (event: CalendarEvent) => void;
+  onDeleteEvent: (eventId: string) => void;
 }
 
 export function WeekView({ selectedDate, events, onCreateEvent, onEditEvent, onDeleteEvent }: WeekViewProps) {
   const getWeekStart = (date: Date) => {
-    const dayOfWeek = date.getDay()
-    const diff = dayOfWeek === 6 ? 0 : dayOfWeek + 1
-    const weekStart = new Date(date)
-    weekStart.setDate(date.getDate() - diff)
-    return weekStart
-  }
+    const dayOfWeek = date.getDay();
+    const diff = dayOfWeek === 6 ? 0 : dayOfWeek + 1;
+    const weekStart = new Date(date);
+    weekStart.setDate(date.getDate() - diff);
+    return weekStart;
+  };
 
-  const weekStart = getWeekStart(selectedDate)
+  const weekStart = getWeekStart(selectedDate);
   const weekDays = Array.from({ length: 7 }, (_, i) => {
-    const day = new Date(weekStart)
-    day.setDate(weekStart.getDate() + i)
-    return day
-  })
+    const day = new Date(weekStart);
+    day.setDate(weekStart.getDate() + i);
+    return day;
+  });
 
-  const hours = Array.from({ length: 24 }, (_, i) => i)
-  const today = new Date()
+  const hours = Array.from({ length: 24 }, (_, i) => i);
+  const today = new Date();
 
   const getEventsForDayAndHour = (day: Date, hour: number) => {
     return events.filter((event) => {
-      const eventDate = new Date(event.startDate)
-      const isSameDay = eventDate.toDateString() === day.toDateString()
-
-      if (!isSameDay) return false
-      if (event.isAllDay) return false
-
-      const eventHour = Number.parseInt(event.startTime?.split(":")[0] || "0")
-      return eventHour === hour
-    })
-  }
+      const eventDate = new Date(event.startDate);
+      const isSameDay = eventDate.toDateString() === day.toDateString();
+      if (!isSameDay || event.isAllDay) return false;
+      const eventHour = Number.parseInt(event.startTime?.split(":")[0] || "0");
+      return eventHour === hour;
+    });
+  };
 
   const getAllDayEvents = (day: Date) => {
     return events.filter((event) => {
-      const eventDate = new Date(event.startDate)
-      return eventDate.toDateString() === day.toDateString() && event.isAllDay
-    })
-  }
-
-  const handleTimeSlotClick = (day: Date, hour: number) => {
-    const timeString = `${hour.toString().padStart(2, "0")}:00`
-    onCreateEvent(day, timeString)
-  }
+      const eventDate = new Date(event.startDate);
+      return eventDate.toDateString() === day.toDateString() && event.isAllDay;
+    });
+  };
 
   return (
-    <div className="space-y-4" dir="rtl">
-      <div className="grid grid-cols-8 gap-2">
-        <div className="p-2"></div>
+    <Stack spacing={2} dir="rtl">
+      {/* Weekday Header */}
+      <Grid container spacing={1}>
+        <Grid size={{xs:1}}><Box /></Grid>
         {weekDays.map((day, index) => {
-          const persianDay = jsDateToPersian(day)
-          const isToday = day.toDateString() === today.toDateString()
-          const isSelected = day.toDateString() === selectedDate.toDateString()
+          const persianDay = jsDateToPersian(day);
+          const isToday = day.toDateString() === today.toDateString();
+          const isSelected = day.toDateString() === selectedDate.toDateString();
 
           return (
-            <Card
-              key={index}
-              className={cn(
-                "p-3 text-center",
-                isToday && "bg-emerald-100 border-emerald-300",
-                isSelected && "bg-emerald-200 border-emerald-400",
-              )}
-            >
-              <div className="text-sm font-medium">{PERSIAN_WEEKDAYS[index]}</div>
-              <div className="text-lg font-bold">{formatPersianNumber(persianDay.day)}</div>
-            </Card>
-          )
+            <Grid key={index}>
+              <Card
+                variant="outlined"
+                sx={{
+                  p: 1,
+                  textAlign: "center",
+                  bgcolor: isSelected ? "success.light" : isToday ? "info.light" : "background.paper",
+                }}
+              >
+                <Typography variant="caption">{PERSIAN_WEEKDAYS[index]}</Typography>
+                <Typography variant="body1" fontWeight="bold">
+                  {formatPersianNumber(persianDay.day)}
+                </Typography>
+              </Card>
+            </Grid>
+          );
         })}
-      </div>
+      </Grid>
 
-      <div className="grid grid-cols-8 gap-2">
-        <div className="p-2 text-sm font-medium text-muted-foreground">رویدادهای تمام روز</div>
-        {weekDays.map((day, dayIndex) => {
-          const allDayEvents = getAllDayEvents(day)
-
+      {/* All-day events */}
+      <Grid container spacing={1}>
+        <Grid size={{xs:1}}>
+          <Typography variant="body2" align="center">تمام روز</Typography>
+        </Grid>
+        {weekDays.map((day, index) => {
+          const allDayEvents = getAllDayEvents(day);
           return (
-            <Card key={dayIndex} className="p-2 min-h-[60px]">
-              <div className="space-y-1">
+            <Grid  key={index}>
+              <Stack spacing={0.5}>
                 {allDayEvents.map((event) => (
-                  <div
+                  <Card
                     key={event.id}
-                    className={cn(
-                      "text-xs p-1 rounded text-white cursor-pointer group relative",
-                      event.category === "work" && "bg-blue-500",
-                      event.category === "personal" && "bg-green-500",
-                      event.category === "health" && "bg-red-500",
-                      event.category === "other" && "bg-gray-500",
-                    )}
+                    sx={{
+                      p: 0.5,
+                      bgcolor:
+                        event.category === "work" ? "primary.main" :
+                        event.category === "personal" ? "success.main" :
+                        event.category === "health" ? "error.main" : "grey.500",
+                      color: "common.white",
+                      position: "relative",
+                    }}
                   >
-                    <div className="truncate">{event.title}</div>
-                    <div className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 flex gap-1 p-1">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-4 w-4 p-0 text-white hover:bg-white/20"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          onEditEvent(event)
-                        }}
-                      >
-                        <Edit className="h-2 w-2" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-4 w-4 p-0 text-white hover:bg-white/20"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          onDeleteEvent(event.id)
-                        }}
-                      >
-                        <Trash2 className="h-2 w-2" />
-                      </Button>
-                    </div>
-                  </div>
+                    <Typography variant="caption" noWrap>{event.title}</Typography>
+                    <Box sx={{ position: "absolute", top: 0, right: 0, display: "flex", gap: 0.5, opacity: 0, ":hover": { opacity: 1 } }}>
+                      <Button size="small" variant="contained" color="inherit" onClick={() => onEditEvent(event)}><Edit fontSize="small" /></Button>
+                      <Button size="small" variant="contained" color="inherit" onClick={() => onDeleteEvent(event.id)}><Trash2 fontSize="small" /></Button>
+                    </Box>
+                  </Card>
                 ))}
                 {allDayEvents.length === 0 && (
-                  <Button
-                    variant="ghost"
-                    className="w-full h-8 text-xs text-muted-foreground hover:bg-emerald-50"
-                    onClick={() => onCreateEvent(day)}
-                  >
-                    افزودن رویداد
-                  </Button>
+                  <Button size="small" variant="outlined" fullWidth onClick={() => onCreateEvent(day)}>افزودن</Button>
                 )}
-              </div>
-            </Card>
-          )
+              </Stack>
+            </Grid>
+          );
         })}
-      </div>
+      </Grid>
 
-      <div className="max-h-[600px] overflow-y-auto">
-        <div className="grid grid-cols-8 gap-2">
-          {hours.map((hour) => (
-            <div key={hour} className="contents">
-              {/* Time label */}
-              <div className="p-2 text-sm font-medium text-muted-foreground text-center border-l">
-                {formatPersianNumber(hour)}:۰۰
-              </div>
-
-              {/* Day columns */}
-              {weekDays.map((day, dayIndex) => {
-                const dayEvents = getEventsForDayAndHour(day, hour)
-
-                return (
-                  <Card
-                    key={`${hour}-${dayIndex}`}
-                    className="p-1 min-h-[50px] cursor-pointer hover:bg-emerald-50 transition-colors"
-                    onClick={() => handleTimeSlotClick(day, hour)}
-                  >
-                    <div className="space-y-1">
-                      {dayEvents.map((event) => (
-                        <div
-                          key={event.id}
-                          className={cn(
-                            "text-xs p-1 rounded text-white cursor-pointer group relative",
-                            event.category === "work" && "bg-blue-500",
-                            event.category === "personal" && "bg-green-500",
-                            event.category === "health" && "bg-red-500",
-                            event.category === "other" && "bg-gray-500",
-                          )}
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <div className="truncate font-medium">{event.title}</div>
-                          {event.startTime && event.endTime && (
-                            <div className="text-xs opacity-90">
-                              {formatPersianNumber(event.startTime)} - {formatPersianNumber(event.endTime)}
-                            </div>
-                          )}
-                          <div className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 flex gap-1 p-1">
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="h-4 w-4 p-0 text-white hover:bg-white/20"
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                onEditEvent(event)
-                              }}
-                            >
-                              <Edit className="h-2 w-2" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="h-4 w-4 p-0 text-white hover:bg-white/20"
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                onDeleteEvent(event.id)
-                              }}
-                            >
-                              <Trash2 className="h-2 w-2" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </Card>
-                )
-              })}
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  )
+      {/* Hourly events */}
+      <Stack spacing={0.5} sx={{ maxHeight: 600, overflowY: "auto" }}>
+        {hours.map((hour) => (
+          <Grid container spacing={1} key={hour}>
+            <Grid size={{xs:1}}>
+              <Typography variant="caption" align="center">{formatPersianNumber(hour)}:۰۰</Typography>
+            </Grid>
+            {weekDays.map((day, index) => {
+              const eventsInHour = getEventsForDayAndHour(day, hour);
+              return (
+                <Grid  key={index}>
+                  <Stack spacing={0.5}>
+                    {eventsInHour.map((event) => (
+                      <Card key={event.id} sx={{
+                        p: 0.5,
+                        bgcolor:
+                          event.category === "work" ? "primary.main" :
+                          event.category === "personal" ? "success.main" :
+                          event.category === "health" ? "error.main" : "grey.500",
+                        color: "common.white",
+                        position: "relative",
+                        cursor: "pointer",
+                      }}>
+                        <Typography variant="caption" noWrap>{event.title}</Typography>
+                        {event.startTime && event.endTime && (
+                          <Typography variant="caption" sx={{ opacity: 0.8 }}>{event.startTime} - {event.endTime}</Typography>
+                        )}
+                        <Box sx={{ position: "absolute", top: 0, right: 0, display: "flex", gap: 0.5, opacity: 0, ":hover": { opacity: 1 } }}>
+                          <Button size="small" variant="contained" color="inherit" onClick={() => onEditEvent(event)}><Edit fontSize="small" /></Button>
+                          <Button size="small" variant="contained" color="inherit" onClick={() => onDeleteEvent(event.id)}><Trash2 fontSize="small" /></Button>
+                        </Box>
+                      </Card>
+                    ))}
+                    {eventsInHour.length === 0 && (
+                      <Button size="small" variant="outlined" fullWidth onClick={() => onCreateEvent(day, `${hour.toString().padStart(2,"0")}:00`)}>+</Button>
+                    )}
+                  </Stack>
+                </Grid>
+              );
+            })}
+          </Grid>
+        ))}
+      </Stack>
+    </Stack>
+  );
 }

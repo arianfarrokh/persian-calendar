@@ -1,46 +1,80 @@
-import * as React from "react"
-import { Slot } from "@radix-ui/react-slot"
-import { cva, type VariantProps } from "class-variance-authority"
+import * as React from "react";
+import { styled } from "@mui/material/styles";
+import { Box, BoxProps } from "@mui/material";
 
-import { cn } from "@/lib/utils"
-
-const badgeVariants = cva(
-  "inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden",
-  {
-    variants: {
-      variant: {
-        default:
-          "border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
-        secondary:
-          "border-transparent bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90",
-        destructive:
-          "border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
-        outline:
-          "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-    },
-  }
-)
-
-function Badge({
-  className,
-  variant,
-  asChild = false,
-  ...props
-}: React.ComponentProps<"span"> &
-  VariantProps<typeof badgeVariants> & { asChild?: boolean }) {
-  const Comp = asChild ? Slot : "span"
-
-  return (
-    <Comp
-      data-slot="badge"
-      className={cn(badgeVariants({ variant }), className)}
-      {...props}
-    />
-  )
+interface BadgeProps extends BoxProps {
+  variant?: "default" | "secondary" | "destructive" | "outline";
 }
 
-export { Badge, badgeVariants }
+const StyledBadge = styled(Box, {
+  shouldForwardProp: (prop) => prop !== "variant",
+})<BadgeProps>(({ theme, variant = "default" }) => {
+  const base = {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: theme.shape.borderRadius,
+    padding: "2px 8px",
+    fontSize: "0.75rem",
+    fontWeight: 500,
+    lineHeight: 1.5,
+    whiteSpace: "nowrap",
+    width: "fit-content",
+    gap: "4px",
+    overflow: "hidden",
+    border: "1px solid",
+    transition: "color 0.2s, box-shadow 0.2s",
+    "& svg": {
+      width: 12,
+      height: 12,
+      flexShrink: 0,
+      pointerEvents: "none",
+    },
+  };
+
+  const variants: Record<string, any> = {
+    default: {
+      backgroundColor: theme.palette.primary.main,
+      color: theme.palette.primary.contrastText,
+      borderColor: "transparent",
+      "&:hover": {
+        backgroundColor: theme.palette.primary.dark,
+      },
+    },
+    secondary: {
+      backgroundColor: theme.palette.secondary.main,
+      color: theme.palette.secondary.contrastText,
+      borderColor: "transparent",
+      "&:hover": {
+        backgroundColor: theme.palette.secondary.dark,
+      },
+    },
+    destructive: {
+      backgroundColor: theme.palette.error.main,
+      color: theme.palette.common.white,
+      borderColor: "transparent",
+      "&:hover": {
+        backgroundColor: theme.palette.error.dark,
+      },
+    },
+    outline: {
+      backgroundColor: "transparent",
+      color: theme.palette.text.primary,
+      borderColor: theme.palette.divider,
+      "&:hover": {
+        backgroundColor: theme.palette.action.hover,
+      },
+    },
+  };
+
+  return {
+    ...base,
+    ...(variants[variant] || variants.default),
+  };
+});
+
+function Badge({ variant = "default", ...props }: BadgeProps) {
+  return <StyledBadge variant={variant} component="span" {...props} />;
+}
+
+export { Badge };

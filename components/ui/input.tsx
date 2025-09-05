@@ -1,21 +1,52 @@
-import * as React from "react"
+"use client";
 
-import { cn } from "@/lib/utils"
+import * as React from "react";
+import { TextField, TextFieldProps } from "@mui/material";
+import { styled } from "@mui/material/styles";
 
-function Input({ className, type, ...props }: React.ComponentProps<"input">) {
+const StyledInput = styled(TextField)(({ theme }) => ({
+  "& .MuiInputBase-root": {
+    height: 36, // شبیه h-9
+    borderRadius: 6,
+    backgroundColor: "transparent",
+    fontSize: 14,
+    paddingRight: theme.spacing(1.5),
+    paddingLeft: theme.spacing(1.5),
+    transition: "box-shadow 0.2s, border-color 0.2s",
+  },
+  "& .MuiOutlinedInput-notchedOutline": {
+    borderColor: theme.palette.divider,
+  },
+  "&:hover .MuiOutlinedInput-notchedOutline": {
+    borderColor: theme.palette.text.primary,
+  },
+  "& .MuiInputBase-input::placeholder": {
+    color: theme.palette.text.secondary,
+    opacity: 0.7,
+  },
+  "& .Mui-focused .MuiOutlinedInput-notchedOutline": {
+    borderColor: theme.palette.primary.main,
+    boxShadow: `0 0 0 3px ${theme.palette.primary.main}40`, // focus-visible:ring
+  },
+  "&.Mui-error .MuiOutlinedInput-notchedOutline": {
+    borderColor: theme.palette.error.main,
+  },
+  "&.Mui-disabled .MuiInputBase-root": {
+    opacity: 0.5,
+    cursor: "not-allowed",
+  },
+}));
+
+export function Input(props: TextFieldProps) {
   return (
-    <input
-      type={type}
-      data-slot="input"
-      className={cn(
-        "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
-        "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
-        "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
-        className
-      )}
+    <StyledInput
       {...props}
+      variant="outlined"
+      size="small"
+      fullWidth
+      InputProps={{
+        ...props.InputProps,
+      }}
     />
-  )
+  );
 }
-
-export { Input }

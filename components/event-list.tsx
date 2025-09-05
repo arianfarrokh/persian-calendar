@@ -1,120 +1,141 @@
-"use client"
+"use client";
 
-import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import type { CalendarEvent } from "@/lib/event-types"
-import { formatPersianDate } from "@/lib/solar-hijri"
-import { Clock, Edit, Trash2, Calendar } from "lucide-react"
+import { Card, Stack, Typography, Chip, IconButton, Box } from "@mui/material";
+import { Calendar, Clock, Edit, Trash2 } from "lucide-react";
+import type { CalendarEvent } from "@/lib/event-types";
+import { formatPersianDate } from "@/lib/solar-hijri";
 
 interface EventListProps {
-  events: CalendarEvent[]
-  onEditEvent: (event: CalendarEvent) => void
-  onDeleteEvent: (eventId: string) => void
-  selectedDate?: Date
+  events: CalendarEvent[];
+  onEditEvent: (event: CalendarEvent) => void;
+  onDeleteEvent: (eventId: string) => void;
+  selectedDate?: Date;
 }
 
-const EVENT_CATEGORY_LABELS = {
+const EVENT_CATEGORY_LABELS: Record<string, string> = {
   work: "کاری",
   personal: "شخصی",
   holiday: "تعطیلات",
   reminder: "یادآوری",
-}
+};
 
-export function EventList({ events, onEditEvent, onDeleteEvent, selectedDate }: EventListProps) {
-  // Filter events for selected date if provided
+export function EventList({
+  events,
+  onEditEvent,
+  onDeleteEvent,
+  selectedDate,
+}: EventListProps) {
   const filteredEvents = selectedDate
-    ? events.filter((event) => {
-        const eventDate = new Date(event.startDate)
-        return eventDate.toDateString() === selectedDate.toDateString()
-      })
-    : events
+    ? events.filter(
+        (event) =>
+          new Date(event.startDate).toDateString() === selectedDate.toDateString()
+      )
+    : events;
 
-  // Sort events by start time
   const sortedEvents = [...filteredEvents].sort((a, b) => {
-    if (a.isAllDay && !b.isAllDay) return -1
-    if (!a.isAllDay && b.isAllDay) return 1
-    return new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
-  })
+    if (a.isAllDay && !b.isAllDay) return -1;
+    if (!a.isAllDay && b.isAllDay) return 1;
+    return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
+  });
 
   if (sortedEvents.length === 0) {
     return (
-      <Card className="p-6">
-        <div className="text-center text-muted-foreground">
-          <Calendar className="w-12 h-12 mx-auto mb-4 opacity-50" />
-          <p dir="rtl">هیچ رویدادی برای این تاریخ وجود ندارد</p>
-          <p className="text-sm mt-2" dir="rtl">
-            برای ایجاد رویداد جدید روی دکمه "رویداد جدید" کلیک کنید
-          </p>
-        </div>
+      <Card sx={{ p: 4, textAlign: "center" }}>
+        <Calendar size={48} style={{ margin: "0 auto 16px", opacity: 0.5 }} />
+        <Typography dir="rtl">هیچ رویدادی برای این تاریخ وجود ندارد</Typography>
+        <Typography variant="body2" dir="rtl" sx={{ mt: 1 }}>
+          برای ایجاد رویداد جدید روی دکمه "رویداد جدید" کلیک کنید
+        </Typography>
       </Card>
-    )
+    );
   }
 
   return (
-    <div className="space-y-3">
+    <Stack spacing={2}>
       {sortedEvents.map((event) => (
-        <Card key={event.id} className="p-4 hover:shadow-md transition-shadow">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-2">
-                <div
-                  className="w-3 h-3 rounded-full flex-shrink-0"
-                  style={{ backgroundColor: event.color || "#059669" }}
-                />
-                <h3 className="font-semibold text-card-foreground truncate" dir="rtl">
-                  {event.title}
-                </h3>
-                <Badge variant="secondary" className="text-xs">
-                  {EVENT_CATEGORY_LABELS[event.category || "personal"]}
-                </Badge>
-              </div>
+        <Card
+          key={event.id}
+          sx={{
+            p: 2,
+            display: "flex",
+            alignItems: "flex-start",
+            justifyContent: "space-between",
+            gap: 2,
+            "&:hover": { boxShadow: 3 },
+          }}
+        >
+          <Stack spacing={1} flex={1} minWidth={0}>
+            <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
+              <Box
+                sx={{
+                  width: 12,
+                  height: 12,
+                  borderRadius: "50%",
+                  bgcolor: event.color || "success.main",
+                  flexShrink: 0,
+                }}
+              />
+              <Typography
+                variant="subtitle1"
+                noWrap
+                sx={{ flex: 1 }}
+                dir="rtl"
+              >
+                {event.title}
+              </Typography>
+              <Chip
+                label={EVENT_CATEGORY_LABELS[event.category || "personal"]}
+                size="small"
+              />
+            </Stack>
 
-              {event.description && (
-                <p className="text-sm text-muted-foreground mb-2 line-clamp-2" dir="rtl">
-                  {event.description}
-                </p>
+            {event.description && (
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                noWrap
+                sx={{ overflow: "hidden", textOverflow: "ellipsis" }}
+                dir="rtl"
+              >
+                {event.description}
+              </Typography>
+            )}
+
+            <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap">
+              <Stack direction="row" spacing={0.5} alignItems="center">
+                <Calendar size={14} />
+                <Typography variant="caption" color="text.secondary" dir="rtl">
+                  {formatPersianDate(event.persianDate)}
+                </Typography>
+              </Stack>
+
+              {!event.isAllDay && event.startTime && event.endTime && (
+                <Stack direction="row" spacing={0.5} alignItems="center">
+                  <Clock size={14} />
+                  <Typography variant="caption">
+                    {event.startTime} - {event.endTime}
+                  </Typography>
+                </Stack>
               )}
 
-              <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                <div className="flex items-center gap-1">
-                  <Calendar className="w-3 h-3" />
-                  <span dir="rtl">{formatPersianDate(event.persianDate)}</span>
-                </div>
+              {event.isAllDay && <Chip label="تمام روز" size="small" />}
+            </Stack>
+          </Stack>
 
-                {!event.isAllDay && event.startTime && event.endTime && (
-                  <div className="flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
-                    <span>
-                      {event.startTime} - {event.endTime}
-                    </span>
-                  </div>
-                )}
-
-                {event.isAllDay && (
-                  <Badge variant="outline" className="text-xs">
-                    تمام روز
-                  </Badge>
-                )}
-              </div>
-            </div>
-
-            <div className="flex items-center gap-1 flex-shrink-0">
-              <Button variant="ghost" size="sm" onClick={() => onEditEvent(event)} className="h-8 w-8 p-0">
-                <Edit className="w-4 h-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onDeleteEvent(event.id)}
-                className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
+          <Stack direction="row" spacing={0.5} flexShrink={0}>
+            <IconButton size="small" onClick={() => onEditEvent(event)}>
+              <Edit size={16} />
+            </IconButton>
+            <IconButton
+              size="small"
+              onClick={() => onDeleteEvent(event.id)}
+              sx={{ color: "error.main" }}
+            >
+              <Trash2 size={16} />
+            </IconButton>
+          </Stack>
         </Card>
       ))}
-    </div>
-  )
+    </Stack>
+  );
 }

@@ -1,18 +1,43 @@
-import * as React from "react"
+"use client";
 
-import { cn } from "@/lib/utils"
+import * as React from "react";
+import { TextField, TextFieldProps } from "@mui/material";
 
-function Textarea({ className, ...props }: React.ComponentProps<"textarea">) {
+interface CustomTextareaProps extends Omit<TextFieldProps, "variant"> {}
+
+export function Textarea({ className, ...props }: CustomTextareaProps) {
   return (
-    <textarea
-      data-slot="textarea"
-      className={cn(
-        "border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 flex field-sizing-content min-h-16 w-full rounded-md border bg-transparent px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
-        className
-      )}
+    <TextField
+      multiline
+      minRows={4} // معادل min-h-16
+      fullWidth
+      variant="outlined"
       {...props}
+      sx={{
+        "& .MuiOutlinedInput-root": {
+          borderRadius: 1, // rounded-md
+          px: 1.5, // px-3
+          py: 1,   // py-2
+          bgcolor: "background.paper", // bg-transparent یا dark:bg-input/30
+          "&.Mui-focused": {
+            borderColor: "primary.main", // focus-visible:border-ring
+            boxShadow: "0 0 0 3px rgba(25,118,210,0.2)", // focus-visible:ring
+          },
+          "&.Mui-disabled": {
+            opacity: 0.5,
+            cursor: "not-allowed",
+          },
+          "&.Mui-error": {
+            borderColor: "error.main",
+            boxShadow: "0 0 0 3px rgba(211,47,47,0.2)", // aria-invalid:ring-destructive
+          },
+        },
+        "& .MuiInputBase-input": {
+          p: 0,
+          lineHeight: 1.5,
+        },
+        ...props?.sx,
+      }}
     />
-  )
+  );
 }
-
-export { Textarea }
