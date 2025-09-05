@@ -212,3 +212,8 @@ export function persianToJsDate(pDate: PersianDate): Date {
   const gDate = persianToGregorian(pDate)
   return new Date(gDate.year, gDate.month - 1, gDate.day)
 }
+
+export function formatPersianNumber(num: number | string): string {
+  const persianDigits = ["۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹"]
+  return num.toString().replace(/\d/g, (digit) => persianDigits[Number.parseInt(digit)])
+}
