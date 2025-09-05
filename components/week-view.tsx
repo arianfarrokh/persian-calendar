@@ -36,11 +36,11 @@ export function WeekView({ selectedDate, events, onCreateEvent, onEditEvent, onD
 
   const getEventsForDayAndHour = (day: Date, hour: number) => {
     return events.filter((event) => {
-      const eventDate = new Date(event.date)
+      const eventDate = new Date(event.startDate)
       const isSameDay = eventDate.toDateString() === day.toDateString()
 
       if (!isSameDay) return false
-      if (event.allDay) return false
+      if (event.isAllDay) return false
 
       const eventHour = Number.parseInt(event.startTime?.split(":")[0] || "0")
       return eventHour === hour
@@ -49,8 +49,8 @@ export function WeekView({ selectedDate, events, onCreateEvent, onEditEvent, onD
 
   const getAllDayEvents = (day: Date) => {
     return events.filter((event) => {
-      const eventDate = new Date(event.date)
-      return eventDate.toDateString() === day.toDateString() && event.allDay
+      const eventDate = new Date(event.startDate)
+      return eventDate.toDateString() === day.toDateString() && event.isAllDay
     })
   }
 
