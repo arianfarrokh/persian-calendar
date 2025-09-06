@@ -33,12 +33,9 @@ const CustomButton = styled(MuiButton, {
 
   const variants: Record<string, any> = {
     default: {
-      // backgroundColor: theme.palette.primary.main,
-      color: "black",
+      backgroundColor: theme.palette.primary.main,
+      color: theme.palette.primary.contrastText,
       "&:hover": { backgroundColor: theme.palette.primary.dark },
-    },
-    contained:{
-      color:"ccc"
     },
     destructive: {
       backgroundColor: theme.palette.error.main,
@@ -46,7 +43,7 @@ const CustomButton = styled(MuiButton, {
       "&:hover": { backgroundColor: theme.palette.error.dark },
     },
     outline: {
-      backgroundColor: theme.palette.background.paper,
+      // backgroundColor: theme.palette.background.paper,
       border: `1px solid ${theme.palette.divider}`,
       "&:hover": {
         backgroundColor: theme.palette.action.hover,
