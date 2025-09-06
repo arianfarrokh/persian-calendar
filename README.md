@@ -7,24 +7,39 @@
 
 ## Overview
 
-This repository will stay in sync with your deployed chats on [v0.app](https://v0.app).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.app](https://v0.app).
+a persian schedular calendar with react ENJOY ;)
 
 ## Deployment
 
 Your project is live at:
 
-**[https://vercel.com/arianfarokh6-6805s-projects/v0-persian-scheduler-1g](https://vercel.com/arianfarokh6-6805s-projects/v0-persian-scheduler-1g)**
+
 
 ## Build your app
 
 Continue building your app on:
 
-**[https://v0.app/chat/projects/3IavpaxqIIV](https://v0.app/chat/projects/3IavpaxqIIV)**
 
 ## How It Works
 
-1. Create and modify your project using [v0.app](https://v0.app)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+Clone the project
+Copy the repository link and run this command in your terminal:
+
+git clone <repository-link>
+
+
+Go inside the project folder
+
+cd project-name
+
+
+Install dependencies
+This will download everything the project needs to run:
+
+npm install
+
+
+Start the project
+This will run the project on your computer:
+
+npm start
