@@ -12,7 +12,7 @@ import { EventModal } from "@/components/event-modal"
 import { EventList } from "@/components/event-list"
 import { DayView } from "@/components/day-view"
 import { WeekView } from "@/components/week-view"
-import { YearView } from "@/components/year-view"
+import {YearView} from '@/components/year-view'  
 import { useEvents } from "@/hooks/use-events"
 
 export default function PersianScheduler() {
@@ -129,28 +129,25 @@ export default function PersianScheduler() {
               </h2>
               <div className="space-y-2">
                 <Button
-                  variant={viewMode === "day" ? "default" : "ghost"}
+                  variant={viewMode === "day" ? "outlined" : "contained"}
                   className="w-full justify-start"
                   onClick={() => setViewMode("day")}
-                  dir="rtl"
                 >
                   <CalendarDays className="w-4 h-4 ml-2" />
                   روزانه
                 </Button>
                 <Button
-                  variant={viewMode === "week" ? "default" : "ghost"}
+                  variant={viewMode === "week" ? "outlined" : "contained"}
                   className="w-full justify-start"
                   onClick={() => setViewMode("week")}
-                  dir="rtl"
                 >
                   <Calendar className="w-4 h-4 ml-2" />
                   هفتگی
                 </Button>
                 <Button
-                  variant={viewMode === "year" ? "default" : "ghost"}
+                  variant={viewMode === "year" ? "outlined" : "contained"}
                   className="w-full justify-start"
                   onClick={() => setViewMode("year")}
-                  dir="rtl"
                 >
                   <CalendarRange className="w-4 h-4 ml-2" />
                   سالانه

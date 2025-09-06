@@ -3,7 +3,7 @@
 import * as React from "react";
 import { Button, Stack, Typography } from "@mui/material";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { formatPersianDate, jsDateToPersian, PERSIAN_MONTHS } from "@/lib/solar-hijri";
+import { addDays, addWeeks, addYears, format } from "date-fns-jalali";
 import type { ViewMode } from "@/lib/event-types";
 
 interface CalendarNavigationProps {
@@ -17,22 +17,19 @@ export function CalendarNavigation({
   currentDate,
   viewMode,
   onDateChange,
-  onViewModeChange,
 }: CalendarNavigationProps) {
-  const currentPersianDate = jsDateToPersian(currentDate);
-
   const navigateDate = (direction: "prev" | "next") => {
-    const newDate = new Date(currentDate);
+    let newDate = currentDate;
 
     switch (viewMode) {
       case "day":
-        newDate.setDate(newDate.getDate() + (direction === "next" ? 1 : -1));
+        newDate = addDays(currentDate, direction === "next" ? 1 : -1);
         break;
       case "week":
-        newDate.setDate(newDate.getDate() + (direction === "next" ? 7 : -7));
+        newDate = addWeeks(currentDate, direction === "next" ? 1 : -1);
         break;
       case "year":
-        newDate.setFullYear(newDate.getFullYear() + (direction === "next" ? 1 : -1));
+        newDate = addYears(currentDate, direction === "next" ? 1 : -1);
         break;
     }
 
@@ -44,17 +41,15 @@ export function CalendarNavigation({
   };
 
   const getNavigationTitle = () => {
-    const pDate = jsDateToPersian(currentDate);
-
     switch (viewMode) {
       case "day":
-        return formatPersianDate(pDate, true);
+        return format(currentDate, "EEEE d MMMM yyyy"); // مثلا: دوشنبه ۱۲ شهریور ۱۴۰۴
       case "week":
-        return `هفته ${PERSIAN_MONTHS[pDate.month - 1]} ${pDate.year}`;
+        return `هفته ${format(currentDate, "MMMM yyyy")}`; // مثلا: هفته شهریور ۱۴۰۴
       case "year":
-        return `سال ${pDate.year}`;
+        return `سال ${format(currentDate, "yyyy")}`;
       default:
-        return formatPersianDate(pDate);
+        return format(currentDate, "MMMM yyyy");
     }
   };
 
