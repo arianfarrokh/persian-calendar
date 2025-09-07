@@ -21,6 +21,7 @@ import {
 import { Calendar, Clock } from "lucide-react";
 import type { CalendarEvent } from "@/lib/event-types";
 import { jsDateToPersian, formatPersianDate } from "@/lib/solar-hijri";
+import { format } from "date-fns-jalali";
 
 interface EventModalProps {
   isOpen: boolean;
@@ -137,7 +138,7 @@ export function EventModal({
             <Typography variant="body2" color="text.secondary">
               تاریخ انتخابی:
             </Typography>
-            <Typography fontWeight="medium">{formatPersianDate(persianDate, true)}</Typography>
+            <Typography fontWeight="medium">{format(selectedDate , "PPP" )}</Typography>
             {selectedTimeSlot && !editingEvent && (
               <Typography variant="body2" color="text.secondary" mt={0.5}>
                 زمان انتخابی: {selectedTimeSlot}

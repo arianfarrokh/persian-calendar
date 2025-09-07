@@ -14,6 +14,7 @@ import { DayView } from "@/components/day-view"
 import { WeekView } from "@/components/week-view"
 import {YearView} from '@/components/year-view'  
 import { useEvents } from "@/hooks/use-events"
+import { format } from "date-fns-jalali"
 
 export default function PersianScheduler() {
   const [viewMode, setViewMode] = useState<ViewMode>("day")
@@ -23,7 +24,7 @@ export default function PersianScheduler() {
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | undefined>()
 
   const { events, addEvent, updateEvent, deleteEvent, getEventsForDate } = useEvents()
-  const currentPersianDate = getCurrentPersianDate()
+  // const currentPersianDate = getCurrentPersianDate()
 
   const handleCreateEvent = (date?: Date, time?: string) => {
     setEditingEvent(undefined)
@@ -66,7 +67,7 @@ export default function PersianScheduler() {
           <DayView
             selectedDate={currentDate}
             events={events}
-            onCreateEvent={handleCreateEvent}
+            // onCreateEvent={handleCreateEvent}
             onEditEvent={handleEditEvent}
             onDeleteEvent={handleDeleteEvent}
           />
@@ -104,7 +105,8 @@ export default function PersianScheduler() {
             <div>
               <h1 className="text-2xl font-bold text-foreground">تقویم شمسی</h1>
               <p className="text-sm text-muted-foreground" dir="rtl">
-                {formatPersianDate(currentPersianDate, true)}
+                {/* {formatPersianDate(currentPersianDate, true)} */}
+                {format(currentDate, "EEEE d MMMM yyyy")}
               </p>
             </div>
             <Button
