@@ -99,9 +99,6 @@ export function DayView({
     <Stack spacing={2}>
       {/* تاریخ */}
       <Card sx={{ p: 2 }}>
-        {/* <Typography variant="h6" dir="rtl" fontWeight={600}>
-          {formatPersianDate(persianDate, true)}
-        </Typography> */}
         <Typography variant="body2" color="text.secondary" dir="rtl">
           {dayEvents.length} رویداد برای این روز
         </Typography>
