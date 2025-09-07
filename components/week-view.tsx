@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, Button, Typography, Grid, Stack, Box } from "@mui/material";
+import { Card, Button, Typography, Stack, Box } from "@mui/material";
 import { Trash2, Edit } from "lucide-react";
 import { format, getDay } from "date-fns-jalali";
 import type { CalendarEvent } from "@/lib/event-types";
@@ -8,7 +8,7 @@ import type { CalendarEvent } from "@/lib/event-types";
 interface WeekViewProps {
   selectedDate: Date;
   events: CalendarEvent[];
-  onCreateEvent: (date: Date, time?: string) => void;
+  onCreateEvent: (date: Date) => void;
   onEditEvent: (event: CalendarEvent) => void;
   onDeleteEvent: (eventId: string) => void;
 }
@@ -35,43 +35,28 @@ export function WeekView({
     return day;
   });
 
-  const hours = Array.from({ length: 24 }, (_, i) => i);
   const today = new Date();
 
-  const getEventsForDayAndHour = (day: Date, hour: number) => {
-    return events.filter((event) => {
-      const eventDate = new Date(event.startDate);
-      const isSameDay = format(eventDate, "yyyy-MM-dd") === format(day, "yyyy-MM-dd");
-      if (!isSameDay || event.isAllDay) return false;
-      const eventHour = Number.parseInt(event.startTime?.split(":")[0] || "0");
-      return eventHour === hour;
-    });
-  };
-
-  const getAllDayEvents = (day: Date) => {
-    return events.filter((event) => {
-      const eventDate = new Date(event.startDate);
-      return (
-        format(eventDate, "yyyy-MM-dd") === format(day, "yyyy-MM-dd") &&
-        event.isAllDay
-      );
-    });
+  const getEventsForDay = (day: Date) => {
+    return events.filter(
+      (event) =>
+        format(new Date(event.startDate), "yyyy-MM-dd") ===
+        format(day, "yyyy-MM-dd")
+    );
   };
 
   return (
-    <Stack  spacing={2}>
+    <Stack spacing={2}>
       {/* Weekday Header */}
-      <Grid container spacing={1}>
-        <Grid size={{xs:1}}>
-          <Box />
-        </Grid>
+      <Stack direction="row" spacing={1}>
         {weekDays.map((day, index) => {
-          const isToday = format(day, "yyyy-MM-dd") === format(today, "yyyy-MM-dd");
+          const isToday =
+            format(day, "yyyy-MM-dd") === format(today, "yyyy-MM-dd");
           const isSelected =
             format(day, "yyyy-MM-dd") === format(selectedDate, "yyyy-MM-dd");
 
           return (
-            <Grid  key={index}>
+            <Stack key={index} sx={{ flex: 1 }}>
               <Card
                 variant="outlined"
                 sx={{
@@ -84,81 +69,66 @@ export function WeekView({
                     : "background.paper",
                 }}
               >
-                <Typography variant="caption">
-                  {format(day, "EEEE")} {/* نام روز هفته */}
-                </Typography>
+                <Typography variant="caption">{format(day, "EEEE")}</Typography>
                 <Typography variant="body1" fontWeight="bold">
-                  {format(day, "d")} {/* روز ماه */}
+                  {format(day, "d")}
                 </Typography>
               </Card>
-            </Grid>
-          );
-        })}
-      </Grid>
 
-      {/* All-day events */}
-      <Grid container spacing={1}>
-        <Grid size={{xs:1}}>
-          <Typography variant="body2" align="center">
-            تمام روز
-          </Typography>
-        </Grid>
-        {weekDays.map((day, index) => {
-          const allDayEvents = getAllDayEvents(day);
-          return (
-            <Grid  key={index}>
-              <Stack spacing={1}>
-                {allDayEvents.map((event) => (
-                  <Card
-                    key={event.id}
-                    sx={{
-                      p: 0.5,
-                      bgcolor:
-                        event.category === "work"
-                          ? "primary.main"
-                          : event.category === "personal"
-                          ? "success.main"
-                          : event.category === "health"
-                          ? "error.main"
-                          : "grey.500",
-                      color: "common.white",
-                      position: "relative",
-                    }}
-                  >
-                    <Typography variant="caption" noWrap>
-                      {event.title}
-                    </Typography>
-                    <Box
+              {/* Eventهای روز */}
+              <Stack spacing={1} mt={1}>
+                {getEventsForDay(day).length > 0 ? (
+                  getEventsForDay(day).map((event) => (
+                    <Card
+                      key={event.id}
                       sx={{
-                        position: "absolute",
-                        top: 0,
-                        right: 0,
-                        display: "flex",
-                        gap: 0.5,
-                        opacity: 0,
-                        ":hover": { opacity: 1 },
+                        p: 1,
+                        bgcolor:
+                          event.category === "work"
+                            ? "primary.main"
+                            : event.category === "personal"
+                            ? "success.main"
+                            : event.category === "health"
+                            ? "error.main"
+                            : "grey.500",
+                        color: "common.white",
+                        position: "relative",
                       }}
                     >
-                      <Button
-                        size="small"
-                        variant="contained"
-                        color="inherit"
-                        onClick={() => onEditEvent(event)}
+                      <Typography variant="body2" noWrap>
+                        {event.title}
+                      </Typography>
+                      <Box
+                        sx={{
+                          position: "absolute",
+                          top: 2,
+                          right: 2,
+                          display: "flex",
+                          gap: 0.5,
+                          opacity: 0,
+                          ":hover": { opacity: 1 },
+                        }}
                       >
-                        <Edit fontSize="small" />
-                      </Button>
-                      <Button
-                        size="small"
-                        variant="contained"
-                        color="inherit"
-                        onClick={() => onDeleteEvent(event.id)}
-                      >
-                        <Trash2 fontSize="small" />
-                      </Button>
-                    </Box>
-                  </Card>
-                ))}
-                {allDayEvents.length === 0 && (
+                        <Button
+                          size="small"
+                          variant="contained"
+                          color="inherit"
+                          onClick={() => onEditEvent(event)}
+                        >
+                          <Edit fontSize="small" />
+                        </Button>
+                        <Button
+                          size="small"
+                          variant="contained"
+                          color="inherit"
+                          onClick={() => onDeleteEvent(event.id)}
+                        >
+                          <Trash2 fontSize="small" />
+                        </Button>
+                      </Box>
+                    </Card>
+                  ))
+                ) : (
                   <Button
                     size="small"
                     variant="outlined"
@@ -169,99 +139,9 @@ export function WeekView({
                   </Button>
                 )}
               </Stack>
-            </Grid>
+            </Stack>
           );
         })}
-      </Grid>
-
-      {/* Hourly events */}
-      <Stack spacing={0.5} sx={{ width:"100%" , maxHeight: 600, overflowY: "auto" }}>
-        {hours.map((hour) => (
-          <Grid container spacing={1} key={hour}>
-            <Grid size={{xs:1}}>
-              <Typography variant="caption" align="center">
-                {hour.toString().padStart(2, "0")}:۰۰
-              </Typography>
-            </Grid>
-            {weekDays.map((day, index) => {
-              const eventsInHour = getEventsForDayAndHour(day, hour);
-              return (
-                <Grid  key={index}>
-                  <Stack spacing={0.5}>
-                    {eventsInHour.map((event) => (
-                      <Card
-                        key={event.id}
-                        sx={{
-                          p: 0.5,
-                          bgcolor:
-                            event.category === "work"
-                              ? "primary.main"
-                              : event.category === "personal"
-                              ? "success.main"
-                              : event.category === "health"
-                              ? "error.main"
-                              : "grey.500",
-                          color: "common.white",
-                          position: "relative",
-                          cursor: "pointer",
-                        }}
-                      >
-                        <Typography variant="caption" noWrap>
-                          {event.title}
-                        </Typography>
-                        {event.startTime && event.endTime && (
-                          <Typography variant="caption" sx={{ opacity: 0.8 }}>
-                            {event.startTime} - {event.endTime}
-                          </Typography>
-                        )}
-                        <Box
-                          sx={{
-                            position: "absolute",
-                            top: 0,
-                            right: 0,
-                            display: "flex",
-                            gap: 0.5,
-                            opacity: 0,
-                            ":hover": { opacity: 1 },
-                          }}
-                        >
-                          <Button
-                            size="small"
-                            variant="contained"
-                            color="inherit"
-                            onClick={() => onEditEvent(event)}
-                          >
-                            <Edit fontSize="small" />
-                          </Button>
-                          <Button
-                            size="small"
-                            variant="contained"
-                            color="inherit"
-                            onClick={() => onDeleteEvent(event.id)}
-                          >
-                            <Trash2 fontSize="small" />
-                          </Button>
-                        </Box>
-                      </Card>
-                    ))}
-                    {eventsInHour.length === 0 && (
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        fullWidth
-                        onClick={() =>
-                          onCreateEvent(day, `${hour.toString().padStart(2, "0")}:00`)
-                        }
-                      >
-                        +
-                      </Button>
-                    )}
-                  </Stack>
-                </Grid>
-              );
-            })}
-          </Grid>
-        ))}
       </Stack>
     </Stack>
   );
