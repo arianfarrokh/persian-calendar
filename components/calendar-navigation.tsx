@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import React from "react";
 import { Button, Stack, Typography } from "@mui/material";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { addDays, addWeeks, addYears, format } from "date-fns-jalali";
@@ -66,7 +66,7 @@ export function CalendarNavigation({
         </Typography>
       </Stack>
 
-      <Stack direction="row" spacing={1}>
+      <Stack direction="row">
         <Button
           variant="outlined"
           size="small"

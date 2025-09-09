@@ -52,8 +52,9 @@ export function EventModal({
   const [startTime, setStartTime] = useState("09:00");
   const [endTime, setEndTime] = useState("10:00");
   const [isAllDay, setIsAllDay] = useState(false);
-  const [category, setCategory] = useState<"work" | "personal" | "holiday" | "reminder" | "health" | "other">("personal")
-
+  const [category, setCategory] = useState<
+    "work" | "personal" | "holiday" | "reminder" | "health" | "other"
+  >("personal");
 
   const persianDate = jsDateToPersian(selectedDate);
 
@@ -72,7 +73,11 @@ export function EventModal({
         setStartTime(selectedTimeSlot);
         const [hour, minute] = selectedTimeSlot.split(":").map(Number);
         const endHour = hour + 1;
-        setEndTime(`${endHour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`);
+        setEndTime(
+          `${endHour.toString().padStart(2, "0")}:${minute
+            .toString()
+            .padStart(2, "0")}`
+        );
       } else {
         setStartTime("09:00");
         setEndTime("10:00");
@@ -99,7 +104,9 @@ export function EventModal({
       endDate.setHours(23, 59, 59, 999);
     }
 
-    const selectedCategory = EVENT_CATEGORIES.find((cat) => cat.value === category);
+    const selectedCategory = EVENT_CATEGORIES.find(
+      (cat) => cat.value === category
+    );
 
     const eventData: Omit<CalendarEvent, "id"> = {
       title: title.trim(),
@@ -127,7 +134,9 @@ export function EventModal({
       <DialogTitle>
         <Stack direction="row" alignItems="center" spacing={1}>
           <Calendar size={20} />
-          <Typography>{editingEvent ? "ویرایش رویداد" : "رویداد جدید"}</Typography>
+          <Typography>
+            {editingEvent ? "ویرایش رویداد" : "رویداد جدید"}
+          </Typography>
         </Stack>
       </DialogTitle>
 
@@ -138,7 +147,9 @@ export function EventModal({
             <Typography variant="body2" color="text.secondary">
               تاریخ انتخابی:
             </Typography>
-            <Typography fontWeight="medium">{format(selectedDate , "PPP" )}</Typography>
+            <Typography fontWeight="medium">
+              {format(selectedDate, "PPP")}
+            </Typography>
             {selectedTimeSlot && !editingEvent && (
               <Typography variant="body2" color="text.secondary" mt={0.5}>
                 زمان انتخابی: {selectedTimeSlot}
@@ -152,7 +163,6 @@ export function EventModal({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             fullWidth
-            dir="rtl"
           />
 
           {/* Description */}
@@ -163,12 +173,16 @@ export function EventModal({
             fullWidth
             multiline
             minRows={3}
-            dir="rtl"
           />
 
           {/* All-day */}
           <FormControlLabel
-            control={<MuiSwitch checked={isAllDay} onChange={(e) => setIsAllDay(e.target.checked)} />}
+            control={
+              <MuiSwitch
+                checked={isAllDay}
+                onChange={(e) => setIsAllDay(e.target.checked)}
+              />
+            }
             label="تمام روز"
           />
 
@@ -182,7 +196,9 @@ export function EventModal({
                 onChange={(e) => setStartTime(e.target.value)}
                 InputLabelProps={{ shrink: true }}
                 InputProps={{
-                  startAdornment: <Clock size={16} style={{ marginRight: 8 }} />,
+                  startAdornment: (
+                    <Clock size={16} style={{ marginRight: 8 }} />
+                  ),
                 }}
                 fullWidth
               />
@@ -193,7 +209,9 @@ export function EventModal({
                 onChange={(e) => setEndTime(e.target.value)}
                 InputLabelProps={{ shrink: true }}
                 InputProps={{
-                  startAdornment: <Clock size={16} style={{ marginRight: 8 }} />,
+                  startAdornment: (
+                    <Clock size={16} style={{ marginRight: 8 }} />
+                  ),
                 }}
                 fullWidth
               />
@@ -211,8 +229,13 @@ export function EventModal({
               {EVENT_CATEGORIES.map((cat) => (
                 <MenuItem key={cat.value} value={cat.value}>
                   <Stack direction="row" alignItems="center" spacing={1}>
-                    <Box width={12} height={12} borderRadius="50%" bgcolor={cat.color} />
-                    {cat.label}
+                    <Box
+                      width={12}
+                      height={12}
+                      borderRadius="50%"
+                      bgcolor={cat.color}
+                    />
+                    <Typography pr={0.5}>{cat.label}</Typography>
                   </Stack>
                 </MenuItem>
               ))}
@@ -225,7 +248,12 @@ export function EventModal({
         <Button variant="outlined" onClick={onClose}>
           لغو
         </Button>
-        <Button onClick={handleSave} disabled={!title.trim()} variant="contained" color="primary">
+        <Button
+          onClick={handleSave}
+          disabled={!title.trim()}
+          variant="contained"
+          color="primary"
+        >
           {editingEvent ? "ذخیره تغییرات" : "ایجاد رویداد"}
         </Button>
       </DialogActions>
