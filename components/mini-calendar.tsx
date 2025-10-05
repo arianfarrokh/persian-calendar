@@ -5,7 +5,6 @@ import {
   Card,
   Button,
   Typography,
-  Grid,
   Box,
   Stack,
 } from "@mui/material";
@@ -14,12 +13,13 @@ import {
   format as formatJalali,
   getYear,
   getMonth,
-  getDate,
   startOfMonth,
   getDay,
   getDaysInMonth,
   addMonths,
   subMonths,
+  set,
+  isSameDay,
 } from "date-fns-jalali";
 
 const PERSIAN_MONTHS = [
@@ -41,26 +41,16 @@ export function MiniCalendar({ selectedDate, onDateSelect, className }: MiniCale
   const [viewDate, setViewDate] = useState<Date>(selectedDate);
   const today = new Date();
 
-  // جابجا کردن ماه
+  // تغییر ماه
   const navigateMonth = (direction: "prev" | "next") => {
-    setViewDate(
-      direction === "next" ? addMonths(viewDate, 1) : subMonths(viewDate, 1)
-    );
+    setViewDate(direction === "next" ? addMonths(viewDate, 1) : subMonths(viewDate, 1));
   };
 
-  // تعداد روزهای ماه
-  const daysInMonth = () => getDaysInMonth(viewDate);
-
-  // روز اول ماه (۰=شنبه، ۶=جمعه)
-  const getFirstDayOfMonth = () => {
-    const firstDay = startOfMonth(viewDate);
-    return getDay(firstDay); 
-  };
+  const daysInCurrentMonth = getDaysInMonth(viewDate);
+  const firstDayIndex = getDay(startOfMonth(viewDate)); // ۰=شنبه
 
   const renderCalendarDays = () => {
     const days: JSX.Element[] = [];
-    const daysInCurrentMonth = daysInMonth();
-    const firstDayIndex = getFirstDayOfMonth();
 
     // خانه‌های خالی قبل از شروع ماه
     for (let i = 0; i < firstDayIndex; i++) {
@@ -69,17 +59,9 @@ export function MiniCalendar({ selectedDate, onDateSelect, className }: MiniCale
 
     // روزهای ماه
     for (let day = 1; day <= daysInCurrentMonth; day++) {
-      const currentDate = new Date(getYear(viewDate), getMonth(viewDate), day);
-
-      const isSelected =
-        getYear(currentDate) === getYear(selectedDate) &&
-        getMonth(currentDate) === getMonth(selectedDate) &&
-        getDate(currentDate) === getDate(selectedDate);
-
-      const isToday =
-        getYear(currentDate) === getYear(today) &&
-        getMonth(currentDate) === getMonth(today) &&
-        getDate(currentDate) === getDate(today);
+      const currentDate = set(viewDate, { date: day });
+      const isSelected = isSameDay(currentDate, selectedDate);
+      const isToday = isSameDay(currentDate, today);
 
       days.push(
         <Button
@@ -121,10 +103,10 @@ export function MiniCalendar({ selectedDate, onDateSelect, className }: MiniCale
           </Button>
         </Stack>
 
-        {/* هدر روزهای هفته */}
-        <Box display={'grid'} gridTemplateColumns={'repeat(7,1fr)'} gap={1} >
+        {/* روزهای هفته */}
+        <Box display="grid" gridTemplateColumns="repeat(7,1fr)" gap={1}>
           {PERSIAN_WEEKDAYS.map((weekday) => (
-            <Box sx={{textAlign:'center'}} key={weekday}>
+            <Box key={weekday} sx={{ textAlign: "center" }}>
               <Typography
                 variant="caption"
                 align="center"
@@ -138,9 +120,9 @@ export function MiniCalendar({ selectedDate, onDateSelect, className }: MiniCale
         </Box>
 
         {/* روزهای ماه */}
-        <Box display={'grid'} gridTemplateColumns={'repeat(7,1fr)'} gap={1}>
+        <Box display="grid" gridTemplateColumns="repeat(7,1fr)" gap={1}>
           {renderCalendarDays().map((day, index) => (
-            <Box sx={{textAlign:'center'}} key={index}>
+            <Box sx={{ textAlign: "center" }} key={index}>
               {day}
             </Box>
           ))}

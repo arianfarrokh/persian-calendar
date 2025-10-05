@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CalendarDays, Calendar, CalendarRange, Plus } from "lucide-react";
-import { getCurrentPersianDate, formatPersianDate } from "@/lib/solar-hijri";
+// import { getCurrentPersianDate, formatPersianDate } from "@/lib/solar-hijri";
 import type { ViewMode, CalendarEvent } from "@/lib/event-types";
 import { CalendarNavigation } from "@/components/calendar-navigation";
 import { MiniCalendar } from "@/components/mini-calendar";
