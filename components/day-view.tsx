@@ -24,7 +24,9 @@ export function DayView({
   onDeleteEvent,
 }: DayViewProps) {
   const persianDate = jsDateToPersian(selectedDate);
-  const hourHeight = 60; // ارتفاع هر ساعت بر حسب px
+  const hourHeight = 60; // Height of one hour in pixels
+  const minEventHeight = 20; // Minimum height for events to ensure visibility
+
   const dayEvents = useMemo(
     () =>
       events.filter(
@@ -37,17 +39,57 @@ export function DayView({
   const allDayEvents = dayEvents.filter((e) => e.isAllDay);
   const hourlyEvents = dayEvents.filter((e) => !e.isAllDay);
 
-  // تابع محاسبه موقعیت event
+  // Function to validate and parse time in HH:MM format
+  const parseTime = (time: string | undefined): [number, number] | null => {
+    if (!time || !/^\d{1,2}:\d{2}$/.test(time)) return null;
+    const [hours, minutes] = time.split(":").map(Number);
+    if (
+      isNaN(hours) ||
+      isNaN(minutes) ||
+      hours < 0 ||
+      hours > 23 ||
+      minutes < 0 ||
+      minutes > 59
+    ) {
+      return null;
+    }
+    return [hours, minutes];
+  };
+
+  // Calculate event position and height
   const getEventPosition = (event: CalendarEvent) => {
-    if (!event.startTime || !event.endTime) return { top: 0, height: hourHeight };
-    const [startH, startM] = event.startTime.split(":").map(Number);
-    const [endH, endM] = event.endTime.split(":").map(Number);
+    if (!event.startTime || !event.endTime) {
+      return { top: 0, height: hourHeight }; // Fallback for invalid times
+    }
+
+    const start = parseTime(event.startTime);
+    const end = parseTime(event.endTime);
+
+    if (!start || !end) {
+      return { top: 0, height: hourHeight }; // Fallback for invalid times
+    }
+
+    const [startH, startM] = start;
+    const [endH, endM] = end;
+
+    // Calculate top position (start of the event)
     const top = startH * hourHeight + (startM / 60) * hourHeight;
-    const height = (endH + endM / 60 - startH - startM / 60) * hourHeight;
+
+    // Calculate duration in hours (including minutes as fractions)
+    const durationHours = endH + endM / 60 - (startH + startM / 60);
+
+    // Calculate height, ensuring a minimum height for visibility
+    const height = Math.max(durationHours * hourHeight, minEventHeight);
+
+    // Ensure height is not negative
+    if (height <= 0) {
+      return { top, height: minEventHeight };
+    }
+
     return { top, height };
   };
 
-  // محاسبه عرض و موقعیت افقی event ها برای همپوشانی
+  // Calculate positions for hourly events, handling overlaps
   const positionedEvents = useMemo(() => {
     const positions: {
       event: CalendarEvent;
@@ -66,11 +108,11 @@ export function DayView({
       const { top, height } = getEventPosition(event);
       let col = 0;
 
-      // پیدا کردن ستون مناسب بدون تداخل
+      // Find a column without overlap
       while (
         positions.some(
           (p) =>
-            p.left === col && // همان ستون
+            p.left === col &&
             Math.max(p.top, top) < Math.min(p.top + p.height, top + height)
         )
       ) {
@@ -82,12 +124,12 @@ export function DayView({
         top,
         height,
         left: col,
-        width: 1, // موقت، بعداً بر اساس تعداد ستون‌ها تقسیم می‌کنیم
+        width: 1, // Temporary width, adjusted later
       });
     }
 
-    // محاسبه عرض نهایی برای هر ستون
-    const colCount = Math.max(...positions.map((p) => p.left)) + 1;
+    // Calculate final width based on the number of columns
+    const colCount = Math.max(...positions.map((p) => p.left), 0) + 1;
     return positions.map((p) => ({
       ...p,
       width: 100 / colCount,
@@ -97,14 +139,14 @@ export function DayView({
 
   return (
     <Stack spacing={2}>
-      {/* تاریخ */}
+      {/* Date Header */}
       <Card sx={{ p: 2 }}>
         <Typography variant="body2" color="text.secondary" dir="rtl">
           {dayEvents.length} رویداد برای این روز
         </Typography>
       </Card>
 
-      {/* رویدادهای تمام روز */}
+      {/* All-Day Events */}
       {allDayEvents.length > 0 && (
         <Card sx={{ p: 2 }}>
           <Typography variant="subtitle2" color="text.secondary" gutterBottom>
@@ -161,9 +203,16 @@ export function DayView({
         </Card>
       )}
 
-      {/* رویدادهای ساعتی */}
-      <Card sx={{ position: "relative", height: 24 * hourHeight, border: "1px solid", borderColor: "divider" }}>
-        {/* خطوط ساعت‌ها */}
+      {/* Hourly Events */}
+      <Card
+        sx={{
+          position: "relative",
+          height: 24 * hourHeight,
+          border: "1px solid",
+          borderColor: "divider",
+        }}
+      >
+        {/* Hour Lines */}
         {Array.from({ length: 25 }, (_, i) => (
           <Box
             key={i}
@@ -179,7 +228,7 @@ export function DayView({
           />
         ))}
 
-        {/* label ساعت */}
+        {/* Hour Labels */}
         {Array.from({ length: 24 }, (_, i) => (
           <Box
             key={i}
@@ -201,14 +250,14 @@ export function DayView({
           </Box>
         ))}
 
-        {/* رویدادها */}
+        {/* Events */}
         {positionedEvents.map(({ event, top, height, left, width }) => (
           <Box
             key={event.id}
             sx={{
               position: "absolute",
-              zIndex:3,
-              opacity:0.8,
+              zIndex: 3,
+              opacity: 0.8,
               top,
               left: `${left}%`,
               width: `${width}%`,
@@ -219,6 +268,9 @@ export function DayView({
               borderRadius: 1,
               boxShadow: 1,
               overflow: "hidden",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "flex-start",
             }}
           >
             <Typography variant="body2" noWrap>
@@ -226,7 +278,8 @@ export function DayView({
             </Typography>
             {event.startTime && event.endTime && (
               <Typography variant="caption">
-                {toPersianNumbers(event.startTime)} - {toPersianNumbers(event.endTime)}
+                {toPersianNumbers(event.startTime)} -{" "}
+                {toPersianNumbers(event.endTime)}
               </Typography>
             )}
           </Box>
